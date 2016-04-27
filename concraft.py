@@ -2,9 +2,7 @@ import os
 import re
 import socket
 import subprocess
-import time
-import wdnet
-from retrying import retry
+from retry import retry
 
 PATH_TO_CONCRAFT = '~/.cabal/bin'
 
@@ -34,17 +32,17 @@ class Client:
     def __init__(self, port):
         self.port = port
 
-    @retry(wait_fixed = 10000)
+    @retry(subprocess.CalledProcessError, delay=10)
     def __call__(self, sentence):
         self.write_to_file(sentence)
         command = "{0}/concraft-pl client --port {1} < input".format(PATH_TO_CONCRAFT, self.port)
         return subprocess.check_output(command, shell=True).decode('utf-8')
 
-    def to_lemmas(self, sentence):
-        return get_lemmas(self, self.__call__(sentence))
+    def to_lemma(self, sentence):
+        return self.extract_lemmas(self.__call__(sentence))
 
     def to_pos(self, sentence):
-        return get_pos(self, self.__call__(sentence))
+        return self.extract_pos(self.__call__(sentence))
 
     def write_to_file(self, sentence):
         with open('input', 'w') as input:
