@@ -1,12 +1,4 @@
 import concraft
-import wdnet
-
-def analyse(sentence, concraftClient):
-    for word in concraftClient.lemmatize(sentence).split():
-        print(word)
-        hyponyms = wdnet.get_hyponyms(word, 2)
-        for hyponym in set(hyponyms):
-            print ("\t{0}".format(hyponym))
 
 server = concraft.Server()
 port = server.get_port()
