@@ -36,15 +36,15 @@ class Client:
 
     @retry(wait_fixed = 10000)
     def __call__(self, sentence):
-        call = "{0}/concraft-pl client --port {1} < input".format(PATH_TO_CONCRAFT, self.port)
         self.write_to_file(sentence)
-        return subprocess.check_output(call, shell=True).decode('utf-8')
+        command = "{0}/concraft-pl client --port {1} < input".format(PATH_TO_CONCRAFT, self.port)
+        return subprocess.check_output(command, shell=True).decode('utf-8')
 
     def to_lemmas(self, sentence):
         return get_lemmas(self, self.__call__(sentence))
 
     def to_pos(self, sentence):
-        return get_lemmas(self, self.__call__(sentence))
+        return get_pos(self, self.__call__(sentence))
 
     def write_to_file(self, sentence):
         with open('input', 'w') as input:
