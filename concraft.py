@@ -21,8 +21,8 @@ class Server:
         return port
 
     def start_server(self):
-        call = "{0}/concraft-pl server {0}/model.gz --port {1}".format(PATH_TO_CONCRAFT, self.port)
-        server = subprocess.Popen(call, shell=True)
+        command = "{0}/concraft-pl server {0}/model.gz --port {1}".format(PATH_TO_CONCRAFT, self.port)
+        server = subprocess.Popen(command, shell=True)
         return server
         
     def get_port(self):
@@ -33,17 +33,29 @@ class Client:
         self.port = port
 
     @retry(subprocess.CalledProcessError, delay=10)
-    def __call__(self, sentence):
+    def call_concraft(self, sentence):
         self.write_to_file(sentence)
         command = "{0}/concraft-pl client --port {1} < input".format(PATH_TO_CONCRAFT, self.port)
+        print(subprocess.check_output(command, shell=True).decode('utf-8'))
         return subprocess.check_output(command, shell=True).decode('utf-8')
 
     def to_lemma(self, sentence):
-        return self.extract_lemmas(self.__call__(sentence))
+        parsed = self.parse(self.call_concraft(sentence))
+        return self.extract_lemmas(parsed)
 
     def to_pos(self, sentence):
-        return self.extract_pos(self.__call__(sentence))
+        parsed = self.parse(self.call_concraft(sentence))
+        return self.extract_pos(parsed)
 
+    def parse(self, concraft_output):
+        parsed = defaultdict(list)
+        for line in concraft_output:
+            if not line.startswith('\t'):
+                word = line.split()[0] 
+            elif line.split()[-1] == 'disamb':
+                parsed[word].append(line.split()[0].lower())
+        return parsed
+    
     def write_to_file(self, sentence):
         with open('input', 'w') as input:
             input.write(sentence)
