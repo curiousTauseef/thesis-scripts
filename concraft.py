@@ -3,7 +3,7 @@ import re
 import socket
 import subprocess
 from retry import retry
-from collections import defaultdict
+from collections import OrderedDict
 
 PATH_TO_CONCRAFT = '~/.cabal/bin'
 
@@ -41,17 +41,21 @@ class Client:
 
     def to_lemma(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
-        return [word[1] for word in parsed]
+        return [value[1] for key, value in parsed.items()]
 
     def to_pos(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
-        return [word[0] for word in parsed]
+        return [value[0] for key, value in parsed.items()]
 
     def parse(self, concraft_output):
-        parsed = []
+        parsed = OrderedDict()
         for line in concraft_output.split('\n'):
-            if line and line.startswith('\t') and line.split()[-1] == 'disamb':
-                parsed.append((line.split()[0].lower(), line.split()[1]))
+            if not line:
+                continue
+            elif not line.startswith('\t'):
+                word = line.split()[0]
+            elif line.split()[-1] == 'disamb':
+                parsed[word] = (line.split()[0].lower(), line.split()[1])
         return parsed
     
     def write_to_file(self, sentence):
