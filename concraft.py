@@ -3,6 +3,7 @@ import re
 import socket
 import subprocess
 from retry import retry
+from collections import defaultdict
 
 PATH_TO_CONCRAFT = '~/.cabal/bin'
 
@@ -36,24 +37,21 @@ class Client:
     def call_concraft(self, sentence):
         self.write_to_file(sentence)
         command = "{0}/concraft-pl client --port {1} < input".format(PATH_TO_CONCRAFT, self.port)
-        print(subprocess.check_output(command, shell=True).decode('utf-8'))
         return subprocess.check_output(command, shell=True).decode('utf-8')
 
     def to_lemma(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
-        return self.extract_lemmas(parsed)
+        return [word[1] for word in parsed]
 
     def to_pos(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
-        return self.extract_pos(parsed)
+        return [word[0] for word in parsed]
 
     def parse(self, concraft_output):
-        parsed = defaultdict(list)
-        for line in concraft_output:
-            if not line.startswith('\t'):
-                word = line.split()[0] 
-            elif line.split()[-1] == 'disamb':
-                parsed[word].append(line.split()[0].lower())
+        parsed = []
+        for line in concraft_output.split('\n'):
+            if line and line.startswith('\t') and line.split()[-1] == 'disamb':
+                parsed.append((line.split()[0].lower(), line.split()[1]))
         return parsed
     
     def write_to_file(self, sentence):
