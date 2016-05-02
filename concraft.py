@@ -41,11 +41,11 @@ class Client:
 
     def to_lemmas(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
-        return [value[1] for key, value in parsed.items()]
+        return ' '.join([value[0] for key, value in parsed.items()])
 
     def to_pos_tags(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
-        return [value[0] for key, value in parsed.items()]
+        return ' '.join([value[1] for key, value in parsed.items()])
 
     def parse(self, concraft_output):
         parsed = OrderedDict()
@@ -61,12 +61,3 @@ class Client:
     def write_to_file(self, sentence):
         with open('input', 'w') as input:
             input.write(sentence)
-
-    def extract_lemmas(self, concraftOutput):
-        return [line.split()[0] for line in concraftOutput.split("\n") if self.disambiguation(line)]
-
-    def extract_pos(self, concraftOutput):
-        return [line.split()[1] for line in concraftOutput.split("\n") if self.disambiguation(line)]
-
-    def disambiguation(self, line):
-        return line and line.split()[-1] == 'disamb'
