@@ -8,12 +8,13 @@ from collections import OrderedDict
 PATH_TO_CONCRAFT = '~/.cabal/bin'
 
 class Server:
-    def __init__(self):
+    def __enter__(self):
         self.port = self.find_free_port()
         self.server = self.start_server()
+        return self
 
-    def __del__(self):
-        self.server.terminate()
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.server.kill()
 
     def find_free_port(self):
         sock = socket.socket()
