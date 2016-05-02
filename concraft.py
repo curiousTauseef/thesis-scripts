@@ -39,11 +39,11 @@ class Client:
         command = "{0}/concraft-pl client --port {1} < input".format(PATH_TO_CONCRAFT, self.port)
         return subprocess.check_output(command, shell=True).decode('utf-8')
 
-    def to_lemma(self, sentence):
+    def to_lemmas(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
         return [value[1] for key, value in parsed.items()]
 
-    def to_pos(self, sentence):
+    def to_pos_tags(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
         return [value[0] for key, value in parsed.items()]
 
