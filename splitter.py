@@ -1,3 +1,4 @@
+import argparse
 import random
 
 def split(filename, treshold):
@@ -11,5 +12,8 @@ def split(filename, treshold):
                     train.write(line)
 
 if __name__ == '__main__':
-    split('text', 0.8)
-
+    parser = argparse.ArgumentParser()
+    parser.add_argument('input', help='path to the input file', type=str)
+    parser.add_argument('-t', '--treshold', help='numerical treshold for the split', type=float, default=0.8)
+    args = parser.parse_args()
+    split(args.input, args.treshold)
