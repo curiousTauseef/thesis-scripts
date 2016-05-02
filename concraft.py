@@ -1,5 +1,6 @@
 import os
 import re
+import signal
 import socket
 import subprocess
 from retry import retry
@@ -14,7 +15,7 @@ class Server:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.server.kill()
+        os.killpg(os.getpgid(self.server.pid), signal.SIGTERM)
 
     def find_free_port(self):
         sock = socket.socket()
@@ -24,7 +25,7 @@ class Server:
 
     def start_server(self):
         command = "{0}/concraft-pl server {0}/model.gz --port {1}".format(PATH_TO_CONCRAFT, self.port)
-        server = subprocess.Popen(command, shell=True)
+        server = subprocess.Popen(command, shell=True, preexec_fn=os.setsid)
         return server
         
     def get_port(self):
