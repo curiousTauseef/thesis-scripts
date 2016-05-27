@@ -2,17 +2,24 @@
 import xml.etree.ElementTree
 import glob
 
+prefix = '{http://www.tei-c.org/ns/1.0}'
 def parse(filename):
     root = xml.etree.ElementTree.parse(filename).getroot()
-    for sentence in root.findall('.//{http://www.tei-c.org/ns/1.0}s'):
+    for sentence in root.findall(".//{0}s".format(prefix)):
         out = []
-        for segment in sentence.findall('.//{http://www.tei-c.org/ns/1.0}seg'): 
-            text = segment.find(".//{http://www.tei-c.org/ns/1.0}f[@name='orth']/{http://www.tei-c.org/ns/1.0}string")
-            base = segment.find(".//{http://www.tei-c.org/ns/1.0}f[@name='base']/{http://www.tei-c.org/ns/1.0}string")
-            pos = segment.find(".//{http://www.tei-c.org/ns/1.0}f[@name='interpretation']/{http://www.tei-c.org/ns/1.0}string")
-            out.append(pos.text)
-    print(' '.join(out))
+        for segment in sentence.findall(".//{0}seg".format(prefix)): 
+            orth = segment.find(".//{0}f[@name='orth']/{0}string".format(prefix))
+            interpretation = segment.find(".//{0}f[@name='interpretation']/{0}string".format(prefix))
+            base = interpretation.text.split(':')[0]
+            pos = interpretation.text.split(':')[1]
+            if pos in ['num', 'ign']:
+                out.append(pos)
+                print("KURWWAAAAAAA\n\n\n{0}".format(orth.text))
+            elif pos not in ['brev', 'interp', 'xxx', 'aglt']:
+                out.append(orth.text.lower())
+        if len(out) > 4:
+            print(' '.join(out))
 
-path = 'data'
-for filename in glob.iglob('./**/ann_morphosyntax.xml', recursive=True):
+path = '/media/sebastian/Seagate Expansion Drive/mgr/free/4/IJP/'
+for filename in glob.iglob(path + '/**/ann_morphosyntax.xml', recursive=True):
     parse(filename)
