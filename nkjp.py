@@ -16,12 +16,12 @@ def parse(filename):
             interpretation = segment.find(".//{0}f[@name='interpretation']/{0}string".format(prefix)).text.split(':')
             base = interpretation[0]
             pos = interpretation[1]
-            if pos in ['num', 'ign']:
-                out.append(pos)
-            elif pos not in ['brev', 'interp', 'xxx', 'aglt']:
+            if pos == 'num' or any(char.isdigit() for char in orth):
+                out.append('num')
+            elif pos not in ['brev', 'ign', 'interp', 'xxx', 'aglt']:
                 out.append(pattern.sub('', orth.lower()))
         if len(out) > 4:
-            print(' '.join(out))
+            print(re.sub(r'\s+', ' ', ' '.join(out)))
 
 path = '/media/sebastian/Seagate Expansion Drive/mgr/nkjp/4/IJP/_internet/senat/xml/k5/60'
 for filename in glob.iglob(path + '/**/ann_morphosyntax.xml', recursive=True):
