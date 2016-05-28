@@ -5,11 +5,11 @@ import re
 
 def parse(filename):
     root = xml.etree.ElementTree.parse(filename).getroot()
-    for sentence in root.findall("sentence"):
-        out = [token.find("orth").text for token in sentence.findall("tok")]
+    for sentence in root.findall(".//sentence"):
+        out = [token.find("orth").text.lower() for token in sentence.findall("tok")]
         if len(out) > 4:
-            print(' '.join(out)))
+            print(' '.join(out))
 
-path = '.'
+path = '/media/sebastian/Seagate Expansion Drive/mgr/kpwr/stenogramy'
 for filename in glob.iglob(path + '/**/*.xml', recursive=True):
     parse(filename)
