@@ -21,35 +21,40 @@ def is_num(string):
     return string in roman or any(char.isdigit() for char in string)
 
 def is_valid(line):
-    return len(line) > 4 and out.count('num') < 4
+    return len(line) > 4 and line.count('num') < 4
 
 def extract_orthographic(segment):
-    orthographic = ".//{0}f[@name='orth']/{0}string".format(prefix)
-    return segment.find(orthographic).text.lower()
+    tag = ".//{0}f[@name='orth']/{0}string".format(prefix)
+    orthographic = segment.find(tag).text.lower()
+    return remove_nonalpha(orthographic) 
 
 def extract_interpretation(segment):
     interpretation = ".//{0}f[@name='interpretation']/{0}string".format(prefix)
     return segment.find(interpretation).text.lower()
     
-def parse_segment(segment):
-    orth = extract_orthographic(segment)
-    interp =  extract_interpretation(segment).split(':')
-    base, pos = interp[0], interp[1]
-    if pos == 'num' or is_num(orth):
-        line.append('num')
-    elif pos == 'aglt':
-        print("KURWAA{}\n\n".format(orth))
-        break
-    elif pos not in ['brev', 'ign', 'interp', 'xxx']:
-        line.append(remove_nonalpha(orth))
+def parse_sentence(sentence):
+    parsed = []
+    for segment in sentence.findall(segments):
+        orth = extract_orthographic(segment)
+        interp =  extract_interpretation(segment).split(':')
+        base, pos = interp[0], interp[1]
+        if is_num(orth):
+            parsed.append('num')
+        if pos == 'aglt':
+            parsed[-1] += orth
+        elif pos not in ['brev', 'ign', 'interp', 'xxx']:
+            parsed.append(orth)
+    return parsed
 
 def parse(filename):
     root = xml.etree.ElementTree.parse(filename).getroot()
     for sentence in root.findall(sentences):
-        line = [parse_segment(segment) for segment in sentence.findall(segments)]
-        if is_valid(line):
-            print(contract_whitespace(' '.join(line)))
+        parsed = parse_sentence(sentence)
+        if is_valid(parsed):
+            parsed = contract_whitespace(' '.join(parsed))
+            print(parsed)
 
-path = '/media/sebastian/Seagate Expansion Drive/mgr/nkjp/misc'
-for filename in glob.iglob(path + '/**/ann_morphosyntax.xml', recursive=True):
-    parse(filename)
+if __name__ == '__main__':
+    path = '/media/sebastian/Seagate Expansion Drive/mgr/nkjp/misc'
+    for filename in glob.iglob(path + '/**/ann_morphosyntax.xml', recursive=True):
+        parse(filename)
