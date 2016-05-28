@@ -4,8 +4,19 @@ import glob
 import re
 import string
 
-pattern = re.compile('[\W_]+', re.UNICODE)
 prefix = '{http://www.tei-c.org/ns/1.0}'
+
+def remove_nonalpha(string):
+    pattern = re.compile('[\W_]+', re.UNICODE)
+    return pattern.sub('', string)
+
+def contract_whitespace(string):
+    pattern = re.compile('\s+')
+    return pattern.sub(' ', string)
+
+def is_num(string):
+    roman = ['ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x']
+    return string in roman or any(char.isdigit() for char in string)
 
 def parse(filename):
     root = xml.etree.ElementTree.parse(filename).getroot()
@@ -16,13 +27,16 @@ def parse(filename):
             interpretation = segment.find(".//{0}f[@name='interpretation']/{0}string".format(prefix)).text.split(':')
             base = interpretation[0]
             pos = interpretation[1]
-            if pos == 'num' or any(char.isdigit() for char in orth):
+            if pos == 'num' or is_num(orth):
                 out.append('num')
-            elif pos not in ['brev', 'ign', 'interp', 'xxx', 'aglt']:
+            if pos == 'aglt':
+                print("KURWAA{}\n\n".format(orth))
+                break
+            elif pos not in ['brev', 'ign', 'interp', 'xxx']:
                 out.append(pattern.sub('', orth.lower()))
-        if len(out) > 4:
+        if len(out) > 4 and out.count('num') < 3:
             print(re.sub(r'\s+', ' ', ' '.join(out)))
 
-path = '/media/sebastian/Seagate Expansion Drive/mgr/nkjp/4/IJP/_internet/senat/xml/k5/60'
+path = '/media/sebastian/Seagate Expansion Drive/mgr/nkjp/misc'
 for filename in glob.iglob(path + '/**/ann_morphosyntax.xml', recursive=True):
     parse(filename)
