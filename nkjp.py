@@ -21,7 +21,7 @@ def is_num(string):
     return string in roman or any(char.isdigit() for char in string)
 
 def is_valid(line):
-    return len(line) > 4 and line.count('num') < 4
+    return len(line) > 4 and line.count('num') < 3
 
 def extract_orthographic(segment):
     tag = ".//{0}f[@name='orth']/{0}string".format(prefix)
@@ -40,7 +40,7 @@ def parse_sentence(sentence):
         base, pos = interp[0], interp[1]
         if is_num(orth):
             parsed.append('num')
-        if pos == 'aglt':
+        elif pos == 'aglt':
             parsed[-1] += orth
         elif pos not in ['brev', 'ign', 'interp', 'xxx']:
             parsed.append(orth)
@@ -55,6 +55,10 @@ def parse(filename):
             print(parsed)
 
 if __name__ == '__main__':
-    path = '/media/sebastian/Seagate Expansion Drive/mgr/nkjp/misc'
+    path = '/media/sebastian/Seagate Expansion Drive/mgr/nkjp/law/4'
     for filename in glob.iglob(path + '/**/ann_morphosyntax.xml', recursive=True):
-        parse(filename)
+        try:
+            parse(filename)
+        except Exception as err:
+            print(err)
+            continue
