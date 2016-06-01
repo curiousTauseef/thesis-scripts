@@ -32,6 +32,11 @@ def extract_interpretation(segment):
     interpretation = ".//{0}f[@name='interpretation']/{0}string".format(prefix)
     return segment.find(interpretation).text.lower()
     
+def extract_gnc(tags):
+    gender = ['m1', 'm2', 'm3', 'f', 'n']
+    number = ['sg', 'pl']
+    case = ['nom', 'gen', 'dat', 'acc', 'inst', 'loc', 'voc']
+    
 def parse_sentence(sentence):
     parsed = []
     for segment in sentence.findall(segments):
