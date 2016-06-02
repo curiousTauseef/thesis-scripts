@@ -51,19 +51,21 @@ def parse_sentence(sentence):
             parsed.append(orth)
     return parsed
 
-def parse(filename):
-    root = xml.etree.ElementTree.parse(filename).getroot()
-    for sentence in root.findall(sentences):
-        parsed = parse_sentence(sentence)
-        if is_valid(parsed):
-            parsed = contract_whitespace(' '.join(parsed))
-            print(parsed)
+def parse(filename, out):
+    with open(out, 'a') as out:
+        root = xml.etree.ElementTree.parse(filename).getroot()
+        for sentence in root.findall(sentences):
+            parsed = parse_sentence(sentence)
+            if is_valid(parsed):
+                parsed = contract_whitespace(' '.join(parsed))
+                print(parsed, file=out)
 
 if __name__ == '__main__':
-    path = '/media/sebastian/Seagate Expansion Drive/mgr/nkjp/law/4'
-    for filename in glob.iglob(path + '/**/ann_morphosyntax.xml', recursive=True):
+    path = '/media/sebastian/Seagate Expansion Drive/mgr/nkjp/misc/ustawy'
+    pattern = os.path.join(path, '/**/ann_morphosyntax.xml') 
+    for filename in glob.iglob(pattern, recursive=True):
         try:
-            parse(filename)
+            parse(filename, out)
         except Exception as err:
             print(err)
             continue
