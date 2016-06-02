@@ -33,11 +33,6 @@ def extract_interpretation(segment):
     interpretation = ".//{0}f[@name='interpretation']/{0}string".format(prefix)
     return segment.find(interpretation).text.lower()
     
-def extract_gnc(tags):
-    gender = ['m1', 'm2', 'm3', 'f', 'n']
-    number = ['sg', 'pl']
-    case = ['nom', 'gen', 'dat', 'acc', 'inst', 'loc', 'voc']
-    
 def parse_sentence(sentence):
     parsed = []
     for segment in sentence.findall(segments):
@@ -64,7 +59,7 @@ def parse(filename, out):
 if __name__ == '__main__':
     path = '/media/sebastian/Seagate Expansion Drive/mgr/nkjp/misc/ustawy'
     out = os.path.basename(os.path.normpath(path))
-    pattern = os.path.join(path, '/**/ann_morphosyntax.xml') 
+    pattern = os.path.join(path, '**/ann_morphosyntax.xml') 
     for filename in glob.iglob(pattern, recursive=True):
         try:
             parse(filename, out)
