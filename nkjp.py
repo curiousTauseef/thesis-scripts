@@ -47,7 +47,7 @@ def parse_sentence(sentence):
             parsed.append(orth)
     return parsed
 
-def parse(filename, out):
+def parse(xmlpath, out):
     with open(out, 'a') as out:
         root = xml.etree.ElementTree.parse(filename).getroot()
         for sentence in root.findall(sentences):
@@ -58,11 +58,12 @@ def parse(filename, out):
 
 if __name__ == '__main__':
     path = '/media/sebastian/Seagate Expansion Drive/mgr/nkjp/misc/ustawy'
-    out = os.path.basename(os.path.normpath(path))
-    pattern = os.path.join(path, '**/ann_morphosyntax.xml') 
-    for filename in glob.iglob(pattern, recursive=True):
+    out= os.path.basename(os.path.normpath(path))
+    open(out, 'w').close()
+    xmlpath = os.path.join(path, '**/ann_morphosyntax.xml') 
+    for filename in glob.iglob(xmlpath, recursive=True):
         try:
-            parse(filename, out)
+            parse(xmlpath, out)
         except Exception as err:
             print(err)
             continue
