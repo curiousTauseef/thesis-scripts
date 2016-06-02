@@ -32,6 +32,10 @@ class Server:
         return self.port
 
 class Client:
+    gender = ['m1', 'm2', 'm3', 'f', 'n']
+    number = ['pl', 'sg']
+    case = ['nom', 'gen', 'dat', 'acc', 'inst', 'loc', 'voc']
+
     def __init__(self, port):
         self.port = port
 
@@ -44,6 +48,17 @@ class Client:
     def to_lemmas(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
         return ' '.join([value[0] for key, value in parsed.items()])
+
+    def extract_gnc(self, tags):
+        pass
+
+    def to_gnc(self, sentence):
+        parsed = self.parse(self.call_concraft(sentence))
+        return ' '.join([extract_gnc(value[1]) for key, value in parsed.items()])
+
+    def to_pos(self, sentence):
+        parsed = self.parse(self.call_concraft(sentence))
+        return ' '.join([value[1].split(':')[0] for key, value in parsed.items()])
 
     def to_pos_tags(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
