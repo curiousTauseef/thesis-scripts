@@ -1,6 +1,7 @@
 #requires Python >= 3.5
 import xml.etree.ElementTree
 import glob
+import os
 import re
 import string
 
@@ -62,6 +63,7 @@ def parse(filename, out):
 
 if __name__ == '__main__':
     path = '/media/sebastian/Seagate Expansion Drive/mgr/nkjp/misc/ustawy'
+    out = os.path.basename(os.path.normpath(path))
     pattern = os.path.join(path, '/**/ann_morphosyntax.xml') 
     for filename in glob.iglob(pattern, recursive=True):
         try:
