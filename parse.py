@@ -12,4 +12,4 @@ if __name__ == '__main__':
         mapping = {'l': client.to_lemmas, 't': client.to_pos_tags, 'p': client.to_pos}
         with open(args.input, 'r') as infile, open(args.output, 'w') as out:
             for line in infile:
-                out.write(mapping[args.tokens](line) + "\n")
+                out.write(mapping[args.tokens](line).encode('UTF-8') + "\n")
