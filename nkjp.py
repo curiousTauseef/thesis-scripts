@@ -10,9 +10,9 @@ prefix = '{http://www.tei-c.org/ns/1.0}'
 sentences = ".//{0}s".format(prefix)
 segments = ".//{0}seg".format(prefix)
 
-gender = ['m1', 'm2', 'm3', 'f', 'n']
-number = ['pl', 'sg']
-case = ['nom', 'gen', 'dat', 'acc', 'inst', 'loc', 'voc']
+gender = {'m1', 'm2', 'm3', 'f', 'n'}
+number = {'pl', 'sg'}
+case = {'nom', 'gen', 'dat', 'acc', 'inst', 'loc', 'voc'}
 
 def remove_nonalpha(string):
     pattern = re.compile('[\W_]+', re.UNICODE)
@@ -45,7 +45,12 @@ def split_interpretation(interpretation):
     gnc = extract_gnc(interpretation)
 
 def extract_gnc(interpretation):
-    pass
+    if len(interpretation) < 3:
+        return interpretation[1]
+    else:
+        g = next((token in interpretation if token in gender), None)
+        n = next((token in interpretation if token in number), None)
+        c = next((token in interpretation if token in case), None)
 
 def parse_sentence(sentence):
     parsed = []
