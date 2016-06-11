@@ -54,34 +54,37 @@ def split_interpretation(interpretation):
     gnc = extract_gnc(interpretation)
     return base, pos, gnc
 
-def append_orth(parsed, orth, pos): 
+def append_orth(parsed, interpretation): 
+    base, pos, gnc = split_interpretation(interp)
     if pos == 'aglt':
-        parsed[-1] += pos
+        parsed[-1] += orth
     elif pos not in ['brev', 'ign', 'interp', 'xxx']:
-        parsed.append(pos)
+        parsed.append(orth)
 
-def append_base(parsed, orth, base, pos): 
+def get_base(interpretation): 
+    base, pos, gnc = split_interpretation(interp)
     if pos not in ['brev', 'ign', 'interp', 'xxx', 'aglt']:
-        parsed.append(base)
+        return base
 
-def append_pos(orth, base, pos): 
+def get_pos(interpretation): 
+    base, pos, gnc = split_interpretation(interp)
     if pos not in ['brev', 'ign', 'interp', 'xxx']:
-        parsed.append(pos)
+        return pos
 
-def append_pos_gnc(orth, base, pos, gnc): 
+def get_pos_gnc(interpretation): 
+    base, pos, gnc = split_interpretation(interp)
     if pos not in ['brev', 'ign', 'interp', 'xxx']:
-        parsed.append("{0}:{1}".format(pos, gnc))
+        return "{0}:{1}".format(pos, gnc)
 
 def parse_sentence(sentence):
     parsed = []
     for segment in sentence.findall(segments):
         orth = extract_orthographic(segment)
         interp =  extract_interpretation(segment)
-        base, pos, gnc = split_interpretation(interp)
         if is_num(orth):
             parsed.append('num')
         else:
-            append_orth(parsed, orth, pos)
+            parsed.append(get_pos_gnc(interpretation))
     return parsed
 
 def parse(xmlpath, out):
