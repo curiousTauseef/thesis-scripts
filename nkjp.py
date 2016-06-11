@@ -38,12 +38,6 @@ def extract_interpretation(segment):
     interpretation = ".//{0}f[@name='interpretation']/{0}string".format(prefix)
     return segment.find(interpretation).text.lower()
     
-def split_interpretation(interpretation):
-    interpretation = interpretation.split(':')
-    base = interpretation[0]
-    pos = interpretation[1]
-    gnc = extract_gnc(interpretation)
-
 def extract_gnc(interpretation):
     if len(interpretation) < 3:
         return interpretation[1]
@@ -51,7 +45,32 @@ def extract_gnc(interpretation):
         gender = next((token in interpretation if token in gender), None)
         number = next((token in interpretation if token in number), None)
         case = next((token in interpretation if token in case), None)
-    return ':'.join(filter(None, [gender, number, case]))
+    return ''.join(filter(None, [gender, number, case]))
+
+def split_interpretation(interpretation):
+    interpretation = interpretation.split(':')
+    base = interpretation[0]
+    pos = interpretation[1]
+    gnc = extract_gnc(interpretation)
+    return base, pos, gnc
+
+def append_orth(parsed, orth, pos): 
+    if pos == 'aglt':
+        parsed[-1] += pos
+    elif pos not in ['brev', 'ign', 'interp', 'xxx']:
+        parsed.append(pos)
+
+def append_base(parsed, orth, base, pos): 
+    if pos not in ['brev', 'ign', 'interp', 'xxx', 'aglt']:
+        parsed.append(base)
+
+def append_pos(orth, base, pos): 
+    if pos not in ['brev', 'ign', 'interp', 'xxx']:
+        parsed.append(pos)
+
+def append_pos_gnc(orth, base, pos, gnc): 
+    if pos not in ['brev', 'ign', 'interp', 'xxx']:
+        parsed.append("{0}:{1}".format(pos, gnc))
 
 def parse_sentence(sentence):
     parsed = []
@@ -61,10 +80,8 @@ def parse_sentence(sentence):
         base, pos, gnc = split_interpretation(interp)
         if is_num(orth):
             parsed.append('num')
-        #elif pos == 'aglt':
-        #    parsed[-1] += pos
-        elif pos not in ['brev', 'ign', 'interp', 'xxx']:
-            parsed.append(pos)
+        else:
+            append_orth(parsed, orth, pos)
     return parsed
 
 def parse(xmlpath, out):
