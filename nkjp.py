@@ -48,9 +48,10 @@ def extract_gnc(interpretation):
     if len(interpretation) < 3:
         return interpretation[1]
     else:
-        g = next((token in interpretation if token in gender), None)
-        n = next((token in interpretation if token in number), None)
-        c = next((token in interpretation if token in case), None)
+        gender = next((token in interpretation if token in gender), None)
+        number = next((token in interpretation if token in number), None)
+        case = next((token in interpretation if token in case), None)
+    return ':'.join(filter(None, [gender, number, case]))
 
 def parse_sentence(sentence):
     parsed = []
