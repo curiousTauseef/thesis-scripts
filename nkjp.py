@@ -42,51 +42,43 @@ def extract_gnc(interpretation):
     gender = next((token for token in interpretation if token in gender_tags), None)
     number = next((token for token in interpretation if token in number_tags), None)
     case = next((token for token in interpretation if token in case_tags), None)
-    return ''.join(list(filter(None, [gender, number, case])))
+    pos = interpretation[1]
+    gnc = ''.join(list(filter(None, [gender, number, case])))
+    if gnc:
+        return "{0}:{1}".format(pos, gnc)
+    return pos
 
 def split_interpretation(interpretation):
     interpretation = interpretation.split(':')
     base = interpretation[0]
     pos = interpretation[1]
-    if len(interpretation) < 3:
-        gnc = pos
-    else:
-        gnc = extract_gnc(interpretation)
-        if gnc:
-            gnc = "{0}:{1}".format(pos, gnc)
-        else:
-            gnc = pos
+    gnc = extract_gnc(interpretation)
     return base, pos, gnc
 
-def append_orth(parsed, interpretation): 
-    base, pos, gnc = split_interpretation(interpretation)
+def append_orth(parsed, pos, orth): 
     if pos == 'aglt':
         parsed[-1] += orth
     elif pos not in ['brev', 'ign', 'interp', 'xxx']:
         parsed.append(orth)
 
-def get_base(interpretation): 
-    base, pos, gnc = split_interpretation(interpretation)
+def append_base(parsed, pos, base): 
     if pos not in ['brev', 'ign', 'interp', 'xxx', 'aglt']:
-        return base
+        parsed.append(base)
 
-def get_pos(interpretation): 
-    base, pos, gnc = split_interpretation(interpretation)
+def append_pos(parsed, pos): 
     if pos not in ['brev', 'ign', 'interp', 'xxx']:
-        return pos
+        parsed.append(pos)
 
-def get_pos_gnc(interpretation): 
-    base, pos, gnc = split_interpretation(interpretation)
+def append_pos_gnc(parsed, pos, gnc): 
     if pos not in ['brev', 'ign', 'interp', 'xxx']:
-        return gnc 
-    else:
-        return ''
+        parsed.append(gnc)
 
 def parse_sentence(sentence):
     parsed = []
     for segment in sentence.findall(segments):
         orth = extract_orthographic(segment)
         interpretation =  extract_interpretation(segment)
+        base, pos, gnc = split_interpretation(interpretation)
         if is_num(orth):
             parsed.append('num')
         else:
