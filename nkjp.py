@@ -10,9 +10,9 @@ prefix = '{http://www.tei-c.org/ns/1.0}'
 sentences = ".//{0}s".format(prefix)
 segments = ".//{0}seg".format(prefix)
 
-gender = {'m1', 'm2', 'm3', 'f', 'n'}
-number = {'pl', 'sg'}
-case = {'nom', 'gen', 'dat', 'acc', 'inst', 'loc', 'voc'}
+gender_tags = {'m1', 'm2', 'm3', 'f', 'n'}
+number_tags = {'pl', 'sg'}
+case_tags = {'nom', 'gen', 'dat', 'acc', 'inst', 'loc', 'voc'}
 
 def remove_nonalpha(string):
     pattern = re.compile('[\W_]+', re.UNICODE)
@@ -39,48 +39,54 @@ def extract_interpretation(segment):
     return segment.find(interpretation).text.lower()
     
 def extract_gnc(interpretation):
-    if len(interpretation) < 3:
-        return interpretation[1]
-    else:
-        gender = next((token in interpretation if token in gender), None)
-        number = next((token in interpretation if token in number), None)
-        case = next((token in interpretation if token in case), None)
-    return ''.join(filter(None, [gender, number, case]))
+    gender = next((token for token in interpretation if token in gender_tags), None)
+    number = next((token for token in interpretation if token in number_tags), None)
+    case = next((token for token in interpretation if token in case_tags), None)
+    return ''.join(list(filter(None, [gender, number, case])))
 
 def split_interpretation(interpretation):
     interpretation = interpretation.split(':')
     base = interpretation[0]
     pos = interpretation[1]
-    gnc = extract_gnc(interpretation)
+    if len(interpretation) < 3:
+        gnc = pos
+    else:
+        gnc = extract_gnc(interpretation)
+        if gnc:
+            gnc = "{0}:{1}".format(pos, gnc)
+        else:
+            gnc = pos
     return base, pos, gnc
 
 def append_orth(parsed, interpretation): 
-    base, pos, gnc = split_interpretation(interp)
+    base, pos, gnc = split_interpretation(interpretation)
     if pos == 'aglt':
         parsed[-1] += orth
     elif pos not in ['brev', 'ign', 'interp', 'xxx']:
         parsed.append(orth)
 
 def get_base(interpretation): 
-    base, pos, gnc = split_interpretation(interp)
+    base, pos, gnc = split_interpretation(interpretation)
     if pos not in ['brev', 'ign', 'interp', 'xxx', 'aglt']:
         return base
 
 def get_pos(interpretation): 
-    base, pos, gnc = split_interpretation(interp)
+    base, pos, gnc = split_interpretation(interpretation)
     if pos not in ['brev', 'ign', 'interp', 'xxx']:
         return pos
 
 def get_pos_gnc(interpretation): 
-    base, pos, gnc = split_interpretation(interp)
+    base, pos, gnc = split_interpretation(interpretation)
     if pos not in ['brev', 'ign', 'interp', 'xxx']:
-        return "{0}:{1}".format(pos, gnc)
+        return gnc 
+    else:
+        return ''
 
 def parse_sentence(sentence):
     parsed = []
     for segment in sentence.findall(segments):
         orth = extract_orthographic(segment)
-        interp =  extract_interpretation(segment)
+        interpretation =  extract_interpretation(segment)
         if is_num(orth):
             parsed.append('num')
         else:
