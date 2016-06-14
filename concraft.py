@@ -32,10 +32,6 @@ class Server:
         return self.port
 
 class Client:
-    gender = ['m1', 'm2', 'm3', 'f', 'n']
-    number = ['pl', 'sg']
-    case = ['nom', 'gen', 'dat', 'acc', 'inst', 'loc', 'voc']
-
     def __init__(self, port):
         self.port = port
 
