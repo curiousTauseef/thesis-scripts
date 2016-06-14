@@ -2,9 +2,9 @@
 import xml.etree.ElementTree
 import glob
 import os
-import re
 import string
 import sys
+import utils
 
 prefix = '{http://www.tei-c.org/ns/1.0}'
 sentences = ".//{0}s".format(prefix)
@@ -18,7 +18,6 @@ def extract_orthographic(segment):
 def extract_interpretation(segment):
     interpretation = ".//{0}f[@name='interpretation']/{0}string".format(prefix)
     return segment.find(interpretation).text.lower()
-    
 
 def append_orth(parsed, pos, orth): 
     if pos == 'aglt':
