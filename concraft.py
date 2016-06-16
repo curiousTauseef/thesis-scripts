@@ -3,6 +3,7 @@ import re
 import signal
 import socket
 import subprocess
+import utils
 from retry import retry
 from collections import OrderedDict
 
@@ -44,9 +45,6 @@ class Client:
     def to_lemmas(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
         return ' '.join([value[0] for key, value in parsed.items()])
-
-    def extract_gnc(self, tags):
-        pass
 
     def to_gnc(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
