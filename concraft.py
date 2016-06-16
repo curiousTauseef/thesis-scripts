@@ -3,9 +3,9 @@ import re
 import signal
 import socket
 import subprocess
-import utils
 from retry import retry
 from collections import OrderedDict
+from utils import extract_gnc
 
 PATH_TO_CONCRAFT = '~/.cabal/bin'
 
@@ -48,7 +48,7 @@ class Client:
 
     def to_gnc(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
-        return ' '.join([extract_gnc(value[1]) for key, value in parsed.items()])
+        return ' '.join([extract_gnc(value[1].split(':')) for key, value in parsed.items()])
 
     def to_pos(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))

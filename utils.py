@@ -8,7 +8,7 @@ def extract_gnc(interpretation):
     gender = next((token for token in interpretation if token in gender_tags), None)
     number = next((token for token in interpretation if token in number_tags), None)
     case = next((token for token in interpretation if token in case_tags), None)
-    pos = interpretation[1]
+    pos = interpretation[0]
     gnc = ''.join(list(filter(None, [gender, number, case])))
     if gnc:
         return "{0}:{1}".format(pos, gnc)
@@ -18,7 +18,7 @@ def split_interpretation(interpretation):
     interpretation = interpretation.split(':')
     base = interpretation[0]
     pos = interpretation[1]
-    gnc = extract_gnc(interpretation)
+    gnc = extract_gnc(interpretation[1:])
     return base, pos, gnc
 
 def remove_nonalpha(string):
