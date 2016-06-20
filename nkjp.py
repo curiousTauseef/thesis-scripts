@@ -4,7 +4,7 @@ import glob
 import os
 import string
 import sys
-import utils
+from utils import * 
 
 prefix = '{http://www.tei-c.org/ns/1.0}'
 sentences = ".//{0}s".format(prefix)
@@ -46,7 +46,7 @@ def parse_sentence(sentence):
         if is_num(orth):
             parsed.append('num')
         else:
-            parsed.append(get_pos_gnc(interpretation))
+            append_orth(parsed, pos, orth)
     return parsed
 
 def parse(xmlpath, out):
