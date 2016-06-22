@@ -9,10 +9,16 @@ def add_shuffled(hypo):
         hypo[index].append(' '.join(line) + '\n')
 
 def read_unigrams(filename):
-    pass
+    with open('unigrams', 'r') as uni:
+        unigrams = [line.strip() for line in uni] 
+    return unigrams
 
-def substitute(word):
-    return "substitute"
+def substitute(word, unigrams):
+    word_position = unigrams.index(word)
+    lower_bound = max(0, word_position-5)
+    upper_bound = min(len(unigrams), word_position-5)
+    similar_words = unigrams[lower_bound:upper_bound]
+    return random.choice(similar_words)
 
 def substitute_words(hypo): 
     for index, lines in hypo.items():
