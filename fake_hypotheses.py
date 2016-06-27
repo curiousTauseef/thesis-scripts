@@ -1,4 +1,5 @@
 import argparse
+import distance
 import random
 from collections import defaultdict
 
@@ -9,16 +10,14 @@ def add_shuffled(hypo):
         hypo[index].append(' '.join(line) + '\n')
 
 def read_unigrams(filename):
-    with open('unigrams', 'r') as uni:
-        unigrams = [line.strip() for line in uni] 
+    with open(filename, 'r') as f:
+        unigrams = [line.split()[0] for line in f]
     return unigrams
 
-def substitute(word, unigrams):
-    word_position = unigrams.index(word)
-    lower_bound = max(0, word_position-5)
-    upper_bound = min(len(unigrams), word_position-5)
-    similar_words = unigrams[lower_bound:upper_bound]
-    return random.choice(similar_words)
+def substitute(word):
+    global unigrams
+    similar = sorted(distance.ifast_comp(word, unigrams))
+    return random.choice(similar[1:5][1])
 
 def substitute_words(hypo): 
     for index, lines in hypo.items():
@@ -47,8 +46,8 @@ if __name__ == '__main__':
     parser.add_argument('input', help='path to the input file', type=str)
     args = parser.parse_args()
 
+    unigrams = read_unigrams('unigrams_sorted')
     hypo = read_hypotheses(args.input)
     add_shuffled(hypo)
     substitute_words(hypo)
     write_hypotheses(args.input, hypo)
-
