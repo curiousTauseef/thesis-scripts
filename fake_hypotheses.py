@@ -10,6 +10,13 @@ def shuffled(line):
     random.shuffle(line)
     return ' '.join(line) + '\n'
 
+def substituted(line): 
+    line = lines[0].strip().split()
+    n = len(line)//3 #substitute roughly one third of words
+    for position, word in random.sample(list(enumerate(line)), n):
+        line[position] = substitute(word)
+    return ' '.join(line) + '\n'
+
 def substitute(word):
     global unigrams
     similar = [word for distance, word in sorted(distance.ifast_comp(word, unigrams))][1:]
