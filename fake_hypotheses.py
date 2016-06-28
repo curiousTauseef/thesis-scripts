@@ -5,29 +5,24 @@ import time
 from utils import read_unigrams, read_hypotheses
 from collections import defaultdict
 
-def generate_mock_hypotheses(hypo): 
+def append_mock_hypotheses(hypo): 
     for index, lines in hypo.items():
         line = lines[0].strip().split()
-        for position, word in random.sample(list(enumerate(line)), n):
-            line[position] = substitute(word)
         hypo[index].append(' '.join(line) + '\n')
 
 def shuffle(line):
-    line = line.strip().split()
-    random.shuffle(line)
-    return ' '.join(line) + '\n'
+    return random.sample(line, len(line))
 
-def remove_words(line, percentage=0.3):
-    line = line.strip().split()
-    n = int(len(line)*(1-percentage))
-    return ' '.join([word for index, word in sorted(random.sample(list(enumerate(line)), n))])
+def remove_words(line, fraction=0.3):
+    n = int(len(line)*(1-fraction))
+    return [word for index, word in sorted(random.sample(list(enumerate(line)), n))]
 
-def substitute_words(line, percentage=0.3): 
-    line = line.strip().split()
-    n = int(len(line)*percentage)
-    for position, word in random.sample(list(enumerate(line)), n):
-        line[position] = substitute(word)
-    return ' '.join(line) + '\n'
+def substitute_words(line, fraction=0.3): 
+    n = int(len(line)*fraction)
+    substituted = list(line)
+    for index, word in random.sample(list(enumerate(line)), n):
+        substituted[index] = substitute(word)
+    return substituted
 
 def substitute(word):
     global unigrams
