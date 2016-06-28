@@ -1,23 +1,19 @@
 import argparse
 import distance
 import random
+import time
+from utils import read_unigrams, read_hypotheses
 from collections import defaultdict
 
-def add_shuffled(hypo):
-    for index, lines in hypo.items(): 
-        line = lines[0].strip().split()
-        random.shuffle(line)
-        hypo[index].append(' '.join(line) + '\n')
-
-def read_unigrams(filename):
-    with open(filename, 'r') as f:
-        unigrams = [line.split()[0] for line in f]
-    return unigrams
+def shuffled(line):
+    line = lines[0].strip().split()
+    random.shuffle(line)
+    return ' '.join(line) + '\n'
 
 def substitute(word):
     global unigrams
-    similar = sorted(distance.ifast_comp(word, unigrams))
-    return random.choice(similar[1:5][1])
+    similar = [word for distance, word in sorted(distance.ifast_comp(word, unigrams))][1:]
+    return word if not similar else random.choice(similar)
 
 def substitute_words(hypo): 
     for index, lines in hypo.items():
@@ -27,27 +23,16 @@ def substitute_words(hypo):
             line[position] = substitute(word)
         hypo[index].append(' '.join(line) + '\n')
 
-def read_hypotheses(filename):
-    hypo = defaultdict(list)
-    with open(filename, 'r') as f:
-        for index, line in enumerate(f):
-            hypo[index+1].append(line)
-    return hypo
-
-def write_hypotheses(filename, hypo):
-    with open(filename + '_hypotheses', 'w') as out:
-        for index in sorted(hypo):
-            lines = hypo[index]
-            for line in lines:
-                out.write("{0} {1}".format(index, line))
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('input', help='path to the input file', type=str)
     args = parser.parse_args()
 
-    unigrams = read_unigrams('unigrams_sorted')
+    time_before = time.time()
+    unigrams = read_unigrams('unigrams')
     hypo = read_hypotheses(args.input)
     add_shuffled(hypo)
     substitute_words(hypo)
     write_hypotheses(args.input, hypo)
+    time_after = time.time()
+    print("Elapsed time: {0}".format(time_after-time_before))

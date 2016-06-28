@@ -4,6 +4,24 @@ gender_tags = {'m1', 'm2', 'm3', 'f', 'n'}
 number_tags = {'pl', 'sg'}
 case_tags = {'nom', 'gen', 'dat', 'acc', 'inst', 'loc', 'voc'}
 
+def write_hypotheses(filename, hypo):
+    with open(filename + '_hypotheses', 'w') as out:
+        for index in sorted(hypo):
+            for line in hypo[index]:
+                out.write("{0} {1}".format(index, line))
+
+def read_hypotheses(filename):
+    hypo = defaultdict(list)
+    with open(filename, 'r') as f:
+        for index, line in enumerate(f):
+            hypo[index+1].append(line)
+    return hypo
+
+def read_unigrams(filename):
+    with open(filename, 'r') as f:
+        unigrams = [line.split()[0] for line in f]
+    return unigrams
+
 def extract_gnc(interpretation):
     gender = next((token for token in interpretation if token in gender_tags), None)
     number = next((token for token in interpretation if token in number_tags), None)
