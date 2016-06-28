@@ -13,16 +13,11 @@ def append_mock_hypotheses(hypo):
 def shuffle(line):
     return random.sample(line, len(line))
 
-def remove_words(line, fraction=0.3):
-    n = int(len(line)*(1-fraction))
-    return [word for index, word in sorted(random.sample(list(enumerate(line)), n))]
+def remove_words(line, probability=0.3):
+    return [word if random.random() > probability else '' for word in line]
 
 def substitute_words(line, fraction=0.3): 
-    n = int(len(line)*fraction)
-    substituted = list(line)
-    for index, word in random.sample(list(enumerate(line)), n):
-        substituted[index] = substitute(word)
-    return substituted
+    return [word if random.random() > probability else substitute(word) for word in line]
 
 def substitute(word):
     global unigrams
