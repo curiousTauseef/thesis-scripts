@@ -1,4 +1,5 @@
 import re
+from collections import defaultdict
 
 gender_tags = {'m1', 'm2', 'm3', 'f', 'n'}
 number_tags = {'pl', 'sg'}
