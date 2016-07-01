@@ -4,7 +4,7 @@ library(ggplot2)
 read_ngram_file <- function(filename){
 	ngrams<-fread(filename, header=F, sep="\t")
 	colnames(ngrams)<-c("token", "count")
-	ngrams<-ngrams[ngrams$count > 1]
+	ngrams<-ngrams[sample(nrow(ngrams), size=200000, replace=F),]
 	ngrams<-ngrams[order(count, decreasing=T),]
 	ngrams$index<-seq(1:nrow(ngrams))
 	return(ngrams)
