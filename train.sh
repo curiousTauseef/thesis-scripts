@@ -3,47 +3,49 @@ SCRIPTS=/home/sebastian/Dokumenty/IS/Thesis/language-models/scripts
 DATA=/home/sebastian/Dokumenty/IS/Thesis/language-models/scripts/data
 
 #train model with good-turing discounting (katz smoothing)
-$SRILM/ngram-count
--order 3
--text "$DATA/full/$1"
--lm "$DATA/lm/$1.lm" 
--write1 "$DATA/results/ngrams/full_plain_unigrams_notags" -unk
--write2 "$DATA/results/ngrams/full_plain_bigrams_notags" -unk
--write3 "$DATA/results/ngrams/full_plain_trigrams_notags" -unk
+$SRILM/ngram-count \
+-order 3 \
+-text "$DATA/full/$1" \
+-write1 "$DATA/results/ngrams/full_plain_unigrams" \
+-write2 "$DATA/results/ngrams/full_plain_bigrams" \
+-write3 "$DATA/results/ngrams/full_plain_trigrams" \
+-unk \
+-no-sos -no-eos
+#-lm "$DATA/lm/$1.lm" \
 
 #train model with modified kneser-ney smoothing
-#$SRILM/ngram-count
-#-order 3
-#-text "$DATA/full/$1"
-#-lm "$DATA/lm/$1_kn.lm"
-#-kndiscount1 -kndiscount2 -kndiscount3 
-#-unk
+#$SRILM/ngram-count\
+#-order 3\
+#-text "$DATA/full/$1"\
+#-lm "$DATA/lm/$1_kn.lm"\
+#-kndiscount1 -kndiscount2 -kndiscount3 \
+#-unk\
 #
 ##train model with modified kneser-ney smoothing and interpolation
 #$SRILM/ngram-count
-#-order 3
-#-text "$DATA/full/$1"
-#-lm "$DATA/lm/$1_kni.lm"
-#-kndiscount1 -kndiscount2 -kndiscount3
-#-interpolate1 -interpolate2 -interpolate3
-#-unk
+#-order 3\
+#-text "$DATA/full/$1"\
+#-lm "$DATA/lm/$1_kni.lm"\
+#-kndiscount1 -kndiscount2 -kndiscount3\
+#-interpolate1 -interpolate2 -interpolate3\
+#-unk\
 #
 ##train model with unmodified kneser-ney smoothing
-#$SRILM/ngram-count
-#-order 3
-#-text "$DATA/full/$1"
-#-lm "$DATA/lm/$1_ukn.lm"
-#-ukndiscount1 -ukndiscount2 -ukndiscount3
-#-unk
+#$SRILM/ngram-count\
+#-order 3\
+#-text "$DATA/full/$1"\
+#-lm "$DATA/lm/$1_ukn.lm"\
+#-ukndiscount1 -ukndiscount2 -ukndiscount3\
+#-unk\
 #
 ##train model with unmodified kneser-ney smoothing and interpolation
-#$SRILM/ngram-count
-#-order 3
-#-text "$DATA/full/$1"
-#-lm "$DATA/lm/$1_ukni.lm"
-#-ukndiscount1 -ukndiscount2 -ukndiscount3
-#-interpolate1 -interpolate2 -interpolate3
-#-unk
+#$SRILM/ngram-count\
+#-order 3\
+#-text "$DATA/full/$1"\
+#-lm "$DATA/lm/$1_ukni.lm"\
+#-ukndiscount1 -ukndiscount2 -ukndiscount3\
+#-interpolate1 -interpolate2 -interpolate3\
+#-unk\
 
 ##evaluate models
 #echo "$1_gt.lm"
