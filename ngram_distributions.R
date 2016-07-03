@@ -1,5 +1,6 @@
 library(data.table)
 library(ggplot2)
+library(dplyr)
 
 read_ngram_file <- function(filename){
 	ngrams<-fread(filename, header=F, sep="\t")
@@ -23,16 +24,16 @@ downsample <- function(ngrams, size=200000){
 
 read_ngrams("data/results/ngrams/full_plain")
 
-unigrams_head = head(unigrams, 50)
-bigrams_head = head(bigrams, 50)
-trigrams_head = head(trigrams, 50)
+unigrams_head = head(filter(unigrams, !grepl('num|ust', token)), 50)
+bigrams_head = head(filter(bigrams, !grepl('num|ust', token)), 50)
+trigrams_head = head(filter(trigrams, !grepl('num|ust', token)), 50)
 
 #plot most common tokens
 common_unigrams = qplot(unigrams_head$token, unigrams_head$count/sum(unigrams$count), geom="bar", stat="identity") + coord_flip() + scale_x_discrete(limits=unigrams_head$token[order(unigrams_head$count, decreasing=F)])+labs(x="unigram token", y="Relative count", title="Unigram distribution")
 
 common_bigrams = qplot(bigrams_head$token, bigrams_head$count/sum(bigrams$count), geom="bar", position = "dodge", stat="identity") + coord_flip() + scale_x_discrete(limits=bigrams_head$token[order(bigrams_head$count, decreasing=F)])+labs(x="bigram token", y="Relative count", title="Bigram distribution")
 
-common_trigrams = qplot(trigrams_head$token, trigrams_head$count/sum(trigrams$count), geom_bar(position = "dodge", stat="identity")) + coord_flip() + scale_x_discrete(limits=trigrams_head$token[order(trigrams_head$count, decreasing=F)])+labs(x="trigram token", y="Relative count", title="Trigram distribution")
+common_trigrams = qplot(trigrams_head$token, trigrams_head$count/sum(trigrams$count), geom="bar", position = "dodge", stat="identity") + coord_flip() + scale_x_discrete(limits=trigrams_head$token[order(trigrams_head$count, decreasing=F)])+labs(x="trigram token", y="Relative count", title="Trigram distribution")
 
 unigrams_small = downsample(unigrams)
 bigrams_small = downsample(bigrams)
