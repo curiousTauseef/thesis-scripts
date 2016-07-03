@@ -6,12 +6,12 @@ DATA=/home/sebastian/Dokumenty/IS/Thesis/language-models/scripts/data
 $SRILM/ngram-count \
 -order 3 \
 -text "$DATA/full/$1" \
--write1 "$DATA/results/ngrams/full_plain_unigrams" \
--write2 "$DATA/results/ngrams/full_plain_bigrams" \
--write3 "$DATA/results/ngrams/full_plain_trigrams" \
+-write1 "$DATA/results/ngrams/$1_unigrams" \
+-write2 "$DATA/results/ngrams/$1_bigrams" \
+-write3 "$DATA/results/ngrams/$1_trigrams" \
 -unk \
--no-sos -no-eos
-#-lm "$DATA/lm/$1.lm" \
+-lm "$DATA/lm/$1.lm" \
+#-no-sos -no-eos
 
 #train model with modified kneser-ney smoothing
 #$SRILM/ngram-count\
