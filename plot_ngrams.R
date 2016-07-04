@@ -5,9 +5,9 @@ downsample <- function(ngrams, size=200000){
 }
 
 #preprocess datasets
-unigrams_head = head(filter(unigrams, !grepl('num|ust', token)), 50)
-bigrams_head = head(filter(bigrams, !grepl('num|ust', token)), 50)
-trigrams_head = head(filter(trigrams, !grepl('num|ust', token)), 50)
+unigrams_head = head(filter(unigrams, !grepl('num|ust|<s>|</s>', token)), 30)
+bigrams_head = head(filter(bigrams, !grepl('num|ust|<s>|</s>', token)), 50)
+trigrams_head = head(filter(trigrams, !grepl('num|ust|<s>|</s>', token)), 50)
 unigrams = downsample(unigrams)
 bigrams = downsample(bigrams)
 trigrams = downsample(trigrams)
