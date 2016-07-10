@@ -1,5 +1,4 @@
 library(data.table)
-library(ggplot2)
 library(dplyr)
 
 read_ngram_file <- function(filename){
