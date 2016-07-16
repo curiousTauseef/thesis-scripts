@@ -44,29 +44,29 @@ class Client:
 
     def to_lemmas(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
-        return ' '.join([value[0] for key, value in parsed.items()])
+        return ' '.join([value[1] for value in parsed])
 
     def to_gnc(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
-        return ' '.join([extract_gnc(value[1].split(':')) for key, value in parsed.items()])
+        return ' '.join([extract_gnc(value[2].split(':')) for value in parsed])
 
     def to_pos(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
-        return ' '.join([value[1].split(':')[0] for key, value in parsed.items()])
+        return ' '.join([value[2].split(':')[0] for value in parsed])
 
     def to_pos_tags(self, sentence):
         parsed = self.parse(self.call_concraft(sentence))
-        return ' '.join([value[1] for key, value in parsed.items()])
+        return ' '.join([value[2] for value in parsed])
 
     def parse(self, concraft_output):
-        parsed = OrderedDict()
+        parsed = [] 
         for line in concraft_output.split('\n'):
             if not line:
                 continue
             elif not line.startswith('\t'):
                 word = line.split()[0]
             elif line.split()[-1] == 'disamb':
-                parsed[word] = (line.split()[0].lower(), line.split()[1])
+                parsed.append((word, line.split()[0].lower(), line.split()[1]))
         return parsed
     
     def write_to_file(self, sentence):
