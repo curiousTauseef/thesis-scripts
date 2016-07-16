@@ -6,6 +6,7 @@ import argparse
 
 
 def tag(line, function, eos):
+    line.rstrip()
     if eos:
         line = re.sub(r'|'.join(map(re.escape, ['<s> ', ' </s>'])), '', line)
     mapped = function(line).encode('UTF-8')
@@ -14,14 +15,14 @@ def tag(line, function, eos):
 def tag_recursively(directory, function, eos): 
     for filename in glob.iglob(os.path.join(args.input, '**/acoustic_hypotheses.txt'), recursive=True):
         with open(filename, 'r') as f:
-            lines = (tag(line.rstrip(), function, eos) for line in f)
+            lines = (tag(line, function, eos) for line in f)
         with open(filename, 'w') as out:
             out.write('\n'.join(lines) + '\n')
 
-def tag(infile, outfile, eos): 
+def tag(infile, outfile, function, eos): 
     with open(infile, 'r') as f, open(outfile, 'w') as out:
         for line in f:
-            out.write(tag_line(line, function, eos)
+            out.write(tag_line(line, function, eos))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -37,8 +38,8 @@ if __name__ == '__main__':
     function = mapping[args.tokens]
     with concraft.Server() as server:
         client = concraft.Client(server.get_port())
-        mapping = {'l': client.to_lemmas, 't': client.to_pos_tags, 'p': client.to_pos, 'g': client.to_gnc}[tokens]
+        function = {'l': client.to_lemmas, 't': client.to_pos_tags, 'p': client.to_pos, 'g': client.to_gnc}[tokens]
         if args.recursive:
-            tag_recursively(args.input, mapping[args.tokens], args.eos)
+            tag_recursively(args.input, function , args.eos)
         else:
             tag(args.input, args.output, function, eos)
