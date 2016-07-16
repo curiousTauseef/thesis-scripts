@@ -5,22 +5,22 @@ import os
 import argparse
 
 
-def tag_line_eos(line, function):
-    line = re.sub(r'|'.join(map(re.escape, ['<s> ', ' </s>'])), '', line)
+def tag_line(line, function, eos):
+    if eos:
+        line = re.sub(r'|'.join(map(re.escape, ['<s> ', ' </s>'])), '', line)
     mapped = function(line).encode('UTF-8')
-    return "<s> {} </s>\n".format(mapped)
+    return "<s> {} </s>\n".format(mapped) if eos else mapped + '\n'
 
-def tag_line_no_eos(line, function):
-        mapped = function(line).encode('UTF-8')
-    return mapped + '\n'
-
-def parse_file_recursively(directory): 
+def parse_file_recursively(directory, eos): 
     for filename in glob.iglob(os.path.join(args.input, '**/acoustic_hypotheses.txt'), recursive=True):
         with open(filename, 'r') as f:
             lines = (line.rstrip() for line in f)
         for line in lines:
 
 def parse_file_nonrecursively(infile, outfile, eos): 
+    with open(infile, 'r') as f, open(outfile, 'w') as out:
+        for line in f:
+            out.write(tag_line(line, function, eos)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
