@@ -15,6 +15,6 @@ read_ngrams <- function(path){
 	trigrams<<-read_ngram_file(paste0(path, "_trigrams"))
 }
 
-corpus_name = "full_plain"
+corpus_name = "full_lemma"
 path = paste0("data/results/ngrams/", corpus_name)
 read_ngrams(path)
