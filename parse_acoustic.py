@@ -5,12 +5,20 @@ import os
 import argparse
 
 
-def tag(line, function, eos):
+def strip(line, eos):
     line.rstrip()
     if eos:
-        line = re.sub(r'|'.join(map(re.escape, ['<s> ', ' </s>'])), '', line)
-    mapped = function(line)
-    return "<s> {} </s>\n".format(mapped) if eos else mapped + '\n'
+        return re.sub(r'|'.join(map(re.escape, ['<s> ', ' </s>'])), '', line)
+    else:
+        return line
+
+def add_eos(line):
+    return "<s> {} </s>".format(line) 
+
+def tag(line, function, eos):
+    line = strip(line, eos)
+    tagged = function(line)
+    return add_eos(tagged) if eos else tagged
 
 def tag_recursively(directory, function, eos): 
     for filename in glob.iglob(os.path.join(args.input, '**/acoustic_hypotheses.txt'), recursive=True):
