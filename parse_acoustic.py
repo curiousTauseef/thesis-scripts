@@ -14,6 +14,7 @@ def tag(line, function, eos):
 
 def tag_recursively(directory, function, eos): 
     for filename in glob.iglob(os.path.join(args.input, '**/acoustic_hypotheses.txt'), recursive=True):
+        print(filename)
         with open(filename, 'r') as f:
             lines = [tag(line, function, eos) for line in f]
         with open(filename, 'w') as out:
