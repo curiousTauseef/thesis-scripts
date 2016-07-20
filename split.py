@@ -4,7 +4,7 @@ import random
 def split(filename, treshold):
     treshold = max(treshold, 1-treshold)
     with open(filename, 'r') as infile:
-        with open(filename + '_train', 'w') as train, open(filename + '_test', 'w') as test:
+        with open(filename + '_train', 'w') as train, open(filename + '_validate', 'w') as test:
             for line in infile:
                 if random.random() > treshold:
                     test.write(line)
