@@ -7,7 +7,7 @@ from collections import defaultdict
 def append_mocks(hypotheses): 
     for index, lines in hypotheses.items():
         line = lines[0].strip().split()
-        hypotheses[index].extend((reduce(mock) for mock in (substitute_words(line, 0.2), substitute_words(line, 0.4), substitute_words(line, 0.8), shuffle(line), remove_words(line, 0.3))))
+        hypotheses[index].extend((reduce(mock) for mock in (substitute_words(line, 0.2), substitute_words(line, 0.4), substitute_words(line, 0.8), shuffle(line), remove_words(line, 0.1))))
 
 def reduce(mock):
     return ' '.join(mock) + '\n'

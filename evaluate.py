@@ -1,3 +1,5 @@
+import distance
+import operator
 import argparse
 from collections import defaultdict
 from srilm import LM
@@ -17,4 +19,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
     lm = LM(args.path)
     hypo = read_hypotheses(args.test)
-            print("{0}: {1}".format(line.strip(), lm.total_logprob_strings(line.split())))
+    werr_total = 0
+    for index in hypo:
+        reference = hypo[index][0]
+        scores = [(hypothesis.split(), lm.total_logprob_strings(hypothesis.split())) for hypothesis in hypo[index][1:]] 
+        best = max(scores, key=operator.itemgetter(1))
+
+        werr_total +=  distance.levenshtein(reference.split(), hypothesis.split())
