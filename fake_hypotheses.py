@@ -2,12 +2,12 @@ import argparse
 import distance
 import random
 import time
-from utils import write_hypotheses, read_unigrams, read_hypotheses
+from collections import defaultdict
 
 def append_mocks(hypotheses): 
     for index, lines in hypotheses.items():
         line = lines[0].strip().split()
-        hypotheses[index].extend((reduce(mock) for mock in (substitute_words(line, 0.1), substitute_words(line, 0.3), substitue_words(line, 0.7), shuffle(line), remove_words(line))))
+        hypotheses[index].extend((reduce(mock) for mock in (substitute_words(line, 0.2), substitute_words(line, 0.4), substitute_words(line, 0.8), shuffle(line), remove_words(line, 0.3))))
 
 def reduce(mock):
     return ' '.join(mock) + '\n'
@@ -23,7 +23,7 @@ def substitute_words(line, probability=0.3):
 
 def substitute(word):
     global unigrams
-    similar = [word for distance, word in sorted(distance.ifast_comp(word, unigrams)) if distance > 0]
+    similar = [word for distance, word in sorted(distance.ifast_comp(word, unigrams)) if distance == 1]
     return word if not similar else random.choice(similar)
 
 def write_hypotheses(filename, hypo):
@@ -41,15 +41,16 @@ def read_hypotheses(filename):
 
 def read_unigrams(filename):
     with open(filename, 'r') as f:
-        unigrams = [line.split()[0] for line in f]
+        unigrams = [line.split()[0] for line in f if int(line.split()[1]) > 10]
     return unigrams
 
 if __name__ == '__main__':
-    parser = argparse.argumentparser()
+    parser = argparse.ArgumentParser()
     parser.add_argument('input', help='path to the input file', type=str)
+    parser.add_argument('-u', '--unigrams', help='path to the input file', type=str, default='data/full/unigrams')
     args = parser.parse_args()
 
-    unigrams = read_unigrams('unigrams')
+    unigrams = read_unigrams(args.unigrams)
     hypotheses = read_hypotheses(args.input)
     append_mocks(hypotheses)
     write_hypotheses(args.input, hypotheses)
