@@ -30,7 +30,7 @@ def write_hypotheses(filename, hypo):
     with open(filename + '_hypotheses', 'w') as out:
         for index in sorted(hypo):
             for line in hypo[index]:
-                out.write("{0} {1}".format(index, line))
+                out.write("{0}\t{1}".format(index, line))
 
 def read_hypotheses(filename):
     hypo = defaultdict(list)
