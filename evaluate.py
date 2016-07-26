@@ -1,6 +1,6 @@
-import distance
 import operator
 import argparse
+from distance import levenshtein
 from collections import defaultdict
 from srilm import LM
 
@@ -12,13 +12,14 @@ def read_nbest_list(filename):
             nbest[int(index)].append(text)
     return nbest
 
-def get_prob_fun(lm):
-    def calculate_prob(hypothesis):
-        return lm.total_logprob_strings([word.encode('utf-8') for word in hypothesis.split()])
-    return calculate_prob
+def get_score_function(lm):
+    def score_function(hypothesis):
+        return lm.total_logprob_strings(hypothesis.strip().split())
+    return score_function
 
 def calculate_werr(reference, hypothesis):
-    distance = distance.levenshtein(reference.split(), best.split()) 
+    distance = levenshtein(reference.strip().split(), hypothesis.strip().split()) 
+    print("{0}\n{1}: {2}, {3}".format(reference.strip().split(), hypothesis.strip().split(), distance, distance/len(reference.split())))
     return distance/len(reference.split())
 
 if __name__ == '__main__':
@@ -27,12 +28,12 @@ if __name__ == '__main__':
     parser.add_argument('test', help='path to the test file', type=str)
     args = parser.parse_args()
     lm = LM(args.path.encode('utf-8'))
-    score = get_prob_fun(lm)
+    score = get_score_function(lm)
     nbest = read_nbest_list(args.test)
     werr_total = 0
     for index in nbest:
-        reference, hypotheses = nbest[index][0], nbest[index][1:]
-        scores = [(hypothesis, score(hypothesis)) for hypothesis in hypotheses] 
-        best = max(scores, key=operator.itemgetter(1))
+        reference, hypotheses = nbest[index][0].strip(), nbest[index][1:]
+        scores = [(hypothesis.strip(), score(hypothesis)) for hypothesis in hypotheses] 
+        best = max(scores, key=operator.itemgetter(1))[0]
         werr_total += calculate_werr(reference, best)
     print(werr_total/len(nbest))
