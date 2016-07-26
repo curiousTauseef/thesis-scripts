@@ -19,7 +19,6 @@ def get_score_function(lm):
 
 def calculate_werr(reference, hypothesis):
     distance = levenshtein(reference.strip().split(), hypothesis.strip().split()) 
-    print("{0}\n{1}: {2}, {3}".format(reference.strip().split(), hypothesis.strip().split(), distance, distance/len(reference.split())))
     return distance/len(reference.split())
 
 if __name__ == '__main__':
