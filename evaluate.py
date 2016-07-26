@@ -18,7 +18,8 @@ def get_prob_fun(lm):
     return calculate_prob
 
 def calculate_werr(reference, hypothesis):
-    pass
+    distance = distance.levenshtein(reference.split(), best.split()) 
+    return distance/len(reference.split())
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -30,10 +31,8 @@ if __name__ == '__main__':
     nbest = read_nbest_list(args.test)
     werr_total = 0
     for index in nbest:
-        reference = nbest[index][0]
-        hypotheses = nbest[index][1:]
+        reference, hypotheses = nbest[index][0], nbest[index][1:]
         scores = [(hypothesis, score(hypothesis)) for hypothesis in hypotheses] 
         best = max(scores, key=operator.itemgetter(1))
-        distance = distance.levenshtein(reference.split(), best.split()) 
-        werr_total +=  distance/len(reference)
-    print(werr_total/len(hypo))
+        werr_total += calculate_werr(reference, best)
+    print(werr_total/len(nbest))
