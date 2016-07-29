@@ -15,7 +15,7 @@ def strip(line, eos):
 def add_eos(line):
     return "<s> {} </s>".format(line) 
 
-def tag(line, function, eos):
+def tag(line, function, eos=False):
     line = strip(line, eos)
     tagged = function(line)
     return add_eos(tagged) if eos else tagged
@@ -28,10 +28,16 @@ def tag_recursively(directory, function, eos):
         with open(filename, 'w') as out:
             out.write('\n'.join(lines) + '\n')
 
-def tag_file(infile, outfile, function, eos): 
+def tag_hypotheses(infile, outfile, function): 
     with open(infile, 'r') as f, open(outfile, 'w') as out:
         for line in f:
             out.write(tag(line, function, eos))
+
+def tag_file(infile, outfile, function, eos): 
+    with open(infile, 'r') as f, open(outfile, 'w') as out:
+        for line in f:
+            index, text = line.split("\t")
+            out.write(index, tag(line, function))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -40,15 +46,16 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--tokens', help='type of the output tokens, use p for raw POS, t for POS with tags and l for lemmas (default)', type=str, choices='gplt', default='l')
     parser.add_argument('--eos', dest='eos', action='store_true')
     parser.add_argument('--no-eos', dest='eos', action='store_false')
-    parser.add_argument('--recursive', dest='recursive', action='store_true')
-    parser.add_argument('--not-recursive', dest='recursive', action='store_false')
+    parser.add_argument('-f' '--file', help='type of the file, use c for corpora, f for single file, and h for hypothesis file', type=str, choces='cfh', default='f')
     parser.set_defaults(eos=False)
     parser.set_defaults(recursive=False)
     args = parser.parse_args()
     with concraft.Server() as server:
         client = concraft.Client(server.get_port())
         function = {'l': client.to_lemmas, 't': client.to_pos_tags, 'p': client.to_pos, 'g': client.to_gnc}[args.tokens]
-        if args.recursive:
+        if args.type == c:
             tag_recursively(args.input, function , args.eos)
+        elif args.type == h:
+            tag_hypotheses(args.input, args.output, function)
         else:
             tag_file(args.input, args.output, function, args.eos)
