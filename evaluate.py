@@ -34,12 +34,12 @@ if __name__ == '__main__':
     for index in nbest:
         reference, hypotheses = nbest[index][0].strip(), nbest[index][1:]
         scores = [(hypothesis.strip(), score(hypothesis)) for hypothesis in hypotheses] 
-        best_hypothesis, best_score = max(scores, key=operator.itemgetter(1))
+        best_hypothesis, best_logprob = max(scores, key=operator.itemgetter(1))
         werr = calculate_werr(reference, best_hypothesis)
         werr_total += werr
         if args.debug == 2:
-            for score in scores:
-                print("{0}: {1}".format(score[0], score[1]))
+            for hypothesis, logprob in scores:
+                print("{0}: {1}".format(hypothesis, logprob))
         if args.debug > 0:
-            print("TRUE: {0}\n BEST: {1}\nPROB: {2}\nWERR: {3}\n\n".format(reference, best_hypothesis, best_score, werr))
+            print("TRUE: {0}\nBEST: {1}\nPROB: {2}\nWERR: {3}\n\n".format(reference, best_hypothesis, best_logprob, werr))
     print("Total WERR: {}".format(100*(werr_total/len(nbest))))
