@@ -23,16 +23,23 @@ def calculate_werr(reference, hypothesis):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('path', help='path to the language model file', type=str)
+    parser.add_argument('lm', help='path to the language model file', type=str)
     parser.add_argument('test', help='path to the test file', type=str)
+    parser.add_argument('-d', '--debug', help='debug level', type=int, default=0, choices=[0, 1, 2])
     args = parser.parse_args()
-    lm = LM(args.path.encode('utf-8'))
+    lm = LM(args.lm.encode('utf-8'))
     score = get_score_function(lm)
     nbest = read_nbest_list(args.test)
     werr_total = 0
     for index in nbest:
         reference, hypotheses = nbest[index][0].strip(), nbest[index][1:]
         scores = [(hypothesis.strip(), score(hypothesis)) for hypothesis in hypotheses] 
-        best = max(scores, key=operator.itemgetter(1))[0]
-        werr_total += calculate_werr(reference, best)
-    print(werr_total/len(nbest))
+        best_hypothesis, best_score = max(scores, key=operator.itemgetter(1))
+        werr = calculate_werr(reference, best_hypothesis)
+        werr_total += werr
+        if args.debug == 2:
+            for score in scores:
+                print("{0}: {1}".format(score[0], score[1]))
+        if args.debug > 0:
+            print("TRUE: {0}\n BEST: {1}\nPROB: {2}\nWERR: {3}\n\n".format(reference, best_hypothesis, best_score, werr))
+    print("Total WERR: {}".format(100*(werr_total/len(nbest))))
