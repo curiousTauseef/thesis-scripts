@@ -33,7 +33,7 @@ if __name__ == '__main__':
     werr_total = 0
     for index in nbest:
         reference = nbest[index][0].strip()
-        hypotheses = nbest[index]
+        hypotheses = nbest[index][1:]
         scores = [(hypothesis.strip(), score(hypothesis)) for hypothesis in hypotheses] 
         best_hypothesis, best_logprob = max(scores, key=operator.itemgetter(1))
         werr = calculate_werr(reference, best_hypothesis)
