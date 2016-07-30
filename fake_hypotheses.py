@@ -14,15 +14,8 @@ def append_mocks(hypotheses):
 def reduce(mock):
     return ' '.join(filter(None, mock)) + '\n'
 
-def delete_words(line, probability):
-    return [word for word in line if random.random() > probability]
-
 def substitute_words(line, probability): 
     return [word if random.random() > probability else substitute(word) for word in line]
-
-def insert(word):
-    global unigrams
-    return "{0} {1}".format(word, random.choice(unigrams))
 
 def substitute(word):
     global unigrams
