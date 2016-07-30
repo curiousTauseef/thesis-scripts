@@ -1,5 +1,6 @@
 import argparse
 import distance
+import numpy as np
 import random
 import time
 from collections import defaultdict
@@ -7,12 +8,8 @@ from collections import defaultdict
 def append_mocks(hypotheses): 
     for index, lines in hypotheses.items():
         line = lines[0].strip().split()
-        for num_words in range(len(line)):
-            hypotheses[index].append(reduce(substitute_words(line, num_words)))
-
-def modify_line(line, probability):
-    modifiers = [delete, substitute, insert]
-    return [word if random.random() > probability else random.choice(modifiers)(word) for word in line]
+        for probability in np.arange(0.2, 1, 0.1):
+            hypotheses[index].append(reduce(substitute_words(line, probability)))
 
 def reduce(mock):
     return ' '.join(filter(None, mock)) + '\n'
@@ -20,9 +17,8 @@ def reduce(mock):
 def delete_words(line, probability):
     return [word for word in line if random.random() > probability]
 
-def substitute_words(line, num_words): 
-    to_substitute = random.sample(range(len(line)), num_words)
-    return [substitute(word) if index in to_substitute else word for word, index in enumerate(line)]
+def substitute_words(line, probability): 
+    return [word if random.random() > probability else substitute(word) for word in line]
 
 def insert(word):
     global unigrams
@@ -30,7 +26,7 @@ def insert(word):
 
 def substitute(word):
     global unigrams
-    similar_words = [unigram for distance, unigram in sorted(distance.ifast_comp(word, unigrams)) if distance == 1]
+    similar_words = [unigram for distance, unigram in sorted(distance.ifast_comp(word, unigrams)) if distance <= 2]
     return word if not similar_words else random.choice(similar_words)
 
 def write_hypotheses(filename, hypo):
@@ -46,7 +42,7 @@ def read_hypotheses(filename):
             hypo[index+1].append(line)
     return hypo
 
-def read_unigrams(filename, treshold=10000):
+def read_unigrams(filename, treshold=5000):
     with open(filename, 'r') as f:
         unigrams = [line.split()[0] for line in f if int(line.split()[1]) > treshold]
     return unigrams
