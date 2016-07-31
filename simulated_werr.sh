@@ -1,11 +1,11 @@
-for INPUT in plain, lemma, pos, gnc 
+for TYPE in plain lemma pos gnc
 do
-	python3 score_nbest.py data/lm/$INPUT_text.lm data data/test/nbest_$INPUT > data/results/simulated_werr/$INPUT_text_output
-	python calculate_werr.py data/results/simulated_werr/$INPUT_text_output data/test/nbest_$INPUT -d 2 > data/results/simulated_werr/$INPUT_text 
+	python3 score_nbest.py "data/lm/${TYPE}_text.lm" "data/results/simulated_werr/${TYPE}_text_output" "data/test/nbest_${TYPE}" 
+	python3 calculate_werr.py "data/results/simulated_werr/${TYPE}_text_output" "data/test/nbest_${TYPE}" -d 2 > "data/results/simulated_werr/${TYPE}_text" 
 
-	python3 score_nbest.py data/lm/$INPUT_speech.lm data data/test/nbest_$INPUT > data/results/simulated_werr/$INPUT_speech_output
-	python calculate_werr.py data/results/simulated_werr/$INPUT_speech_output data/test/nbest_$INPUT -d 2 > data/results/simulated_werr/$INPUT_speech 
+	python3 score_nbest.py "data/lm/${TYPE}_speech.lm" "data/results/simulated_werr/${TYPE}_speech_output" "data/test/nbest_${TYPE}" 
+	python3 calculate_werr.py "data/results/simulated_werr/${TYPE}_speech_output" "data/test/nbest_${TYPE}" -d 2 > "data/results/simulated_werr/${TYPE}_speech" 
 
-	python3 score_nbest.py data/lm/$INPUT_full.lm data data/test/nbest_$INPUT > data/results/simulated_werr/$INPUT_full_output
-	python calculate_werr.py data/results/simulated_werr/$INPUT_full_output data/test/nbest_$INPUT -d 2 > data/results/simulated_werr/$INPUT_full 
+	python3 score_nbest.py "data/lm/${TYPE}_full.lm" "data/results/simulated_werr/${TYPE}_full_output" "data/test/nbest_${TYPE}" 
+	python3 calculate_werr.py "data/results/simulated_werr/${TYPE}_full_output" "data/test/nbest_${TYPE}" -d 2 > "data/results/simulated_werr/${TYPE}_full" 
 done
