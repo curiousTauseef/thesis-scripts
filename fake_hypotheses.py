@@ -45,7 +45,6 @@ if __name__ == '__main__':
     parser.add_argument('input', help='path to the input file', type=str)
     parser.add_argument('-u', '--unigrams', help='path to the input file', type=str, default='data/full/unigrams')
     args = parser.parse_args()
-
     unigrams = read_unigrams(args.unigrams)
     hypotheses = read_hypotheses(args.input)
     append_mocks(hypotheses)

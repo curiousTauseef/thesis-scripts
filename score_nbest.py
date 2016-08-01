@@ -17,4 +17,4 @@ if __name__ == '__main__':
     with open(args.nbest, 'r') as f, open(args.out, 'w') as out:
         for line in f:
             index, text = line.strip().split("\t")
-            out.write(score(text))
+            out.write("{}\n".format(score(text)))
