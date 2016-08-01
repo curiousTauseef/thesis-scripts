@@ -79,17 +79,6 @@ class Client:
     def extract_tags(self, disamb):
         return disamb.split()[1].lower()
 
-#    def parse(self, concraft_output):
-#        parsed = [] 
-#        for line in concraft_output.split('\n'):
-#            if not line:
-#                continue
-#            elif not line.startswith('\t'):
-#                word = line.split()[0]
-#            elif line.split()[-1] == 'disamb':
-#                parsed.append((word, line.split()[0].lower(), line.split()[1]))
-#        return parsed
-    
     def write_to_file(self, sentence):
         with open('input', 'w') as input:
             input.write(sentence)
