@@ -61,7 +61,7 @@ class Client:
     def parse(self, concraft_output):
         parsed = []
         for line in concraft_output.split('\n'):
-            if is_word(line):
+            if self.is_word(line):
                 parsed.append([line.split()[0]])
             elif line:
                 if len(parsed[-1]) == 1:
@@ -74,7 +74,7 @@ class Client:
     def extract_tags(self, disamb):
         return disamb.split()[1].lower()
 
-    def is_word(line):
+    def is_word(self, line):
         return line and not line.startswith('\t')
 
     def write_to_file(self, sentence):
