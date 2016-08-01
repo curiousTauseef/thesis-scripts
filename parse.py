@@ -37,7 +37,7 @@ def tag_nbest(infile, outfile, function, eos=False):
 def tag_file(infile, outfile, function, eos): 
     with open(infile, 'r') as f, open(outfile, 'w') as out:
         for line in f:
-            out.write(tag(line, function, eos))
+            out.write("{}\n".format(tag(line, function, eos)))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
