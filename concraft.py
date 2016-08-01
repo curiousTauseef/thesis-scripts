@@ -61,16 +61,11 @@ class Client:
     def parse(self, concraft_output):
         parsed = []
         for line in concraft_output.split('\n'):
-            if not line:
-                continue
-            if not line.startswith('\t'):
+            if is_word(line):
                 parsed.append([line.split()[0]])
-            else:
-                if len(parsed[-1]) > 1:
-                    pass
-                else:
+            elif line:
+                if len(parsed[-1]) == 1:
                     parsed[-1].extend((self.extract_lemma(line), self.extract_tags(line)))
-        print(parsed)
         return parsed
 
     def extract_lemma(self, disamb):
@@ -78,6 +73,9 @@ class Client:
 
     def extract_tags(self, disamb):
         return disamb.split()[1].lower()
+
+    def is_word(line):
+        return line and not line.startswith('\t')
 
     def write_to_file(self, sentence):
         with open('input', 'w') as input:
