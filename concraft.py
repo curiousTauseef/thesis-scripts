@@ -59,15 +59,36 @@ class Client:
         return ' '.join([value[2] for value in parsed])
 
     def parse(self, concraft_output):
-        parsed = [] 
+        parsed = []
         for line in concraft_output.split('\n'):
             if not line:
                 continue
-            elif not line.startswith('\t'):
-                word = line.split()[0]
-            elif line.split()[-1] == 'disamb':
-                parsed.append((word, line.split()[0].lower(), line.split()[1]))
+            if not line.startswith('\t'):
+                parsed.append([line.split()[0]])
+            else:
+                if len(parsed[-1]) > 1:
+                    pass
+                else:
+                    parsed[-1].extend((self.extract_lemma(line), self.extract_tags(line)))
+        print(parsed)
         return parsed
+
+    def extract_lemma(self, disamb):
+        return disamb.split()[0].lower()
+
+    def extract_tags(self, disamb):
+        return disamb.split()[1].lower()
+
+#    def parse(self, concraft_output):
+#        parsed = [] 
+#        for line in concraft_output.split('\n'):
+#            if not line:
+#                continue
+#            elif not line.startswith('\t'):
+#                word = line.split()[0]
+#            elif line.split()[-1] == 'disamb':
+#                parsed.append((word, line.split()[0].lower(), line.split()[1]))
+#        return parsed
     
     def write_to_file(self, sentence):
         with open('input', 'w') as input:
