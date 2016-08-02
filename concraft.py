@@ -63,7 +63,7 @@ class Client:
         for line in concraft_output.split('\n'):
             if self.is_word(line):
                 parsed.append([line.split()[0]])
-            elif line:
+            elif self.is_disamb(line):
                 if len(parsed[-1]) == 1:
                     parsed[-1].extend((self.extract_lemma(line), self.extract_tags(line)))
         return parsed
@@ -76,6 +76,9 @@ class Client:
 
     def is_word(self, line):
         return line and not line.startswith('\t')
+
+    def is_disamb(self, line):
+        return line and line.split()[-1] == 'disamb' 
 
     def write_to_file(self, sentence):
         with open('input', 'w') as input:
