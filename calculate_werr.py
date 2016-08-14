@@ -43,25 +43,7 @@ def log(wer, linspace=None):
 def find_best_hypothesis(scores):
     return max(list(enumerate(scores)), key=lambda x : x[1][1]) 
 
-def exponent(n):
-    if n == float('-inf'):
-        return 0
-    else:
-        return math.exp(n)
-
-def logarithm(n):
-    if n == 0:
-        return float('-inf')
-    else:
-        return math.log(n)
-
-#def get_probs_alt(lms, ams, alpha):
-#    return [logarithm(alpha) + lm + math.log1p(math.exp((1-alpha)*am-alpha*lm)) for lm, am in zip(lms, ams)]
-#
-#def get_probs(lms, ams, alpha):
-#    return [logarithm(alpha*exponent(lm) + (1-alpha)*exponent(am)) for lm, am in zip(lms, ams)]
-
-def get_probs_cheat(lms, ams, alpha):
+def log_linear_interpolate(lms, ams, alpha):
     return [alpha*lm + (1-alpha)*am for lm, am in zip(lms, ams)]
 
 def calculate_wer(args, alpha=1):
@@ -80,7 +62,7 @@ def calculate_wer(args, alpha=1):
         hypotheses = nbest[index][1:]
         lms = [next(lm_logprobs) for h in hypotheses]
         ams = [next(am_logprobs) for h in hypotheses]
-        probs = get_probs_cheat(lms, ams, alpha)
+        probs = log_linear_interpolate(lms, ams, alpha)
         scores = list(zip(hypotheses, probs))
         best_index, best_hypothesis = find_best_hypothesis(scores)
         best_hypothesis_plain = plain_nbest[index][best_index+1].strip()
