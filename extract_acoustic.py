@@ -10,7 +10,6 @@ def group_lines(lines):
 def sum_group(group):
     return sum([float(line.strip().split(',')[1]) for line in group])
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('input', help='path to the corpus folde', type=str)
@@ -20,9 +19,7 @@ if __name__ == '__main__':
     for index, folder in enumerate(subdirectories):
         filename = os.path.join(folder, 'acoustic_hypotheses.csv')
         with open(filename, 'r') as f, open(args.output, 'a') as out:
-            out.write(filename + '\n')
+            out.write('0\n')
             grouped = group_lines(f.readlines())
             for group in grouped:
-                print([float(line.strip().split(',')[1]) for line in group])
-                print(sum_group(group))
                 out.write("{}\n".format(sum_group(group)))
