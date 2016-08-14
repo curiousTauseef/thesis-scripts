@@ -1,10 +1,12 @@
-import operator
 import argparse
-from distance import levenshtein
 from collections import defaultdict
+from distance import levenshtein
 import itertools
-from srilm import LM
+import math
+import numpy as np
+import operator
 import random
+from srilm import LM
 
 def read_nbest_list(filename):
     nbest = defaultdict(list)
@@ -18,34 +20,59 @@ def read_logprobs(filename):
     with open(filename, 'r') as f:
         return [float(line) for line in f]
 
-def werr(reference, hypothesis):
+def wer(reference, hypothesis):
     distance = levenshtein(reference.strip().split(), hypothesis.strip().split()) 
     return distance/len(reference.split())
 
-def log_hypothesis(debug, best_hypothesis, scores, werr, reference):
+def log_hypothesis(debug, best_hypothesis, best_hypothesis_plain, scores, werr, reference):
     (best_text, best_logprob) = best_hypothesis
     if debug == 2:
         for hypothesis, logprob in scores:
             print("{0}: {1}".format(hypothesis.strip(), logprob))
     if debug > 0:
-        print("TRUE: {0}\nBEST: {1}\nPROB: {2}\nWERR: {3}\n\n".format(reference, best_text, best_logprob, werr))
+        print("TRUE: {0}\nBEST: {1}\nPROB: {2}\nWERR: {3}\n\n".format(reference, best_hypothesis_plain, best_logprob, werr))
 
-def log(werr):
-    print("Total WERR: {}".format(werr))
+def log(wer, linspace=None):
+    if not linspace is None:
+        werr = [wer[0]- w for w in wer] 
+        for a, w in zip(linspace, werr):
+            print("{0:.2f} {1}".format(a, w))
+    else:
+        print("Total WERR: {}".format(wer))
 
 def find_best_hypothesis(scores):
     return max(list(enumerate(scores)), key=lambda x : x[1][1]) 
 
-def calculate_werr(args, alpha=1):
+def exponent(n):
+    if n == float('-inf'):
+        return 0
+    else:
+        return math.exp(n)
+
+def logarithm(n):
+    if n == 0:
+        return float('-inf')
+    else:
+        return math.log(n)
+
+#def get_probs_alt(lms, ams, alpha):
+#    return [logarithm(alpha) + lm + math.log1p(math.exp((1-alpha)*am-alpha*lm)) for lm, am in zip(lms, ams)]
+#
+#def get_probs(lms, ams, alpha):
+#    return [logarithm(alpha*exponent(lm) + (1-alpha)*exponent(am)) for lm, am in zip(lms, ams)]
+
+def get_probs_cheat(lms, ams, alpha):
+    return [alpha*lm + (1-alpha)*am for lm, am in zip(lms, ams)]
+
+def calculate_wer(args, alpha=1):
     plain_nbest = read_nbest_list(args.plain)
-    num_hypo = len(plain_nbest)/max(plain_nbest)
     nbest = read_nbest_list(args.nbest)
     lm_logprobs = iter(read_logprobs(args.lm_prob))
     if args.am:
         am_logprobs = iter(read_logprobs(args.am_prob))
     else:
         am_logprobs = itertools.repeat(0) #God help me 
-    total_werr = 0
+    total_wer = 0
     for index in nbest:
         reference = plain_nbest[index][0].strip()
         next(lm_logprobs)
@@ -53,14 +80,14 @@ def calculate_werr(args, alpha=1):
         hypotheses = nbest[index][1:]
         lms = [next(lm_logprobs) for h in hypotheses]
         ams = [next(am_logprobs) for h in hypotheses]
-        probs = [alpha*lm + (1-alpha)*am for lm, am in zip(lms, ams)] 
+        probs = get_probs_cheat(lms, ams, alpha)
         scores = list(zip(hypotheses, probs))
         best_index, best_hypothesis = find_best_hypothesis(scores)
         best_hypothesis_plain = plain_nbest[index][best_index+1].strip()
-        current_werr = werr(reference, best_hypothesis_plain)
-        total_werr += current_werr
-        log_hypothesis(args.debug, best_hypothesis, scores, current_werr, reference)
-    return 100*(total_werr/len(nbest))
+        current_wer = wer(reference, best_hypothesis_plain)
+        total_wer += current_wer
+        log_hypothesis(args.debug, best_hypothesis, best_hypothesis_plain, scores, current_wer, reference)
+    return 100*(total_wer/len(nbest))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -74,7 +101,8 @@ if __name__ == '__main__':
     parser.set_defaults(am=False)
     args = parser.parse_args()
     if args.am:
-        for alpha in range(10):
-            log(calculate_werr_with_am(args, alpha))
+        linspace = np.arange(0, 1, 0.05)
+        wer = [calculate_wer(args, alpha) for alpha in linspace]
+        log(wer, linspace)
     else:
-        log(calculate_werr(args))
+        log(calculate_wer(args))
