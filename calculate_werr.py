@@ -8,6 +8,34 @@ import operator
 import random
 from srilm import LM
 
+def calculate_wer(args, alpha=1):
+    plain_nbest = read_nbest_list(args.plain)
+    nbest = read_nbest_list(args.nbest)
+    lm_logprobs = iter(read_logprobs(args.lm_prob))
+    am_logprobs = get_am_logprobs(args)
+    total_wer = 0
+    for index in nbest:
+        next(lm_logprobs)
+        next(am_logprobs)
+        reference = plain_nbest[index][0].strip()
+        hypotheses = nbest[index][1:]
+        lms = [next(lm_logprobs) for h in hypotheses]
+        ams = [next(am_logprobs) for h in hypotheses]
+        combined_probs = log_linear_interpolate(lms, ams, alpha)
+        scores = list(zip(hypotheses, combined_probs))
+        best_index, best_hypothesis = find_best_hypothesis(scores)
+        best_hypothesis_plain = plain_nbest[index][best_index+1].strip()
+        current_wer = wer(reference, best_hypothesis_plain)
+        total_wer += current_wer
+        log_hypothesis(args.debug, best_hypothesis, best_hypothesis_plain, scores, current_wer, reference)
+    return 100*(total_wer/len(nbest))
+
+def get_am_logprobs(args)
+    if args.include_am:
+        return iter(read_logprobs(args.am_prob))
+    else:
+        return itertools.repeat(0) #God help me 
+
 def read_nbest_list(filename):
     nbest = defaultdict(list)
     with open(filename, 'r') as f:
@@ -46,31 +74,6 @@ def find_best_hypothesis(scores):
 def log_linear_interpolate(lms, ams, alpha):
     return [alpha*lm + (1-alpha)*am for lm, am in zip(lms, ams)]
 
-def calculate_wer(args, alpha=1):
-    plain_nbest = read_nbest_list(args.plain)
-    nbest = read_nbest_list(args.nbest)
-    lm_logprobs = iter(read_logprobs(args.lm_prob))
-    if args.am:
-        am_logprobs = iter(read_logprobs(args.am_prob))
-    else:
-        am_logprobs = itertools.repeat(0) #God help me 
-    total_wer = 0
-    for index in nbest:
-        reference = plain_nbest[index][0].strip()
-        next(lm_logprobs)
-        next(am_logprobs)
-        hypotheses = nbest[index][1:]
-        lms = [next(lm_logprobs) for h in hypotheses]
-        ams = [next(am_logprobs) for h in hypotheses]
-        probs = log_linear_interpolate(lms, ams, alpha)
-        scores = list(zip(hypotheses, probs))
-        best_index, best_hypothesis = find_best_hypothesis(scores)
-        best_hypothesis_plain = plain_nbest[index][best_index+1].strip()
-        current_wer = wer(reference, best_hypothesis_plain)
-        total_wer += current_wer
-        log_hypothesis(args.debug, best_hypothesis, best_hypothesis_plain, scores, current_wer, reference)
-    return 100*(total_wer/len(nbest))
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('lm_prob', help='path to the language model probabilities', type=str)
@@ -78,11 +81,11 @@ if __name__ == '__main__':
     parser.add_argument('-a', '--am_prob', help='path to the acoustic probabilities', type=str, default='out')
     parser.add_argument('-d', '--debug', help='debug level', type=int, default=0, choices=[0, 1, 2])
     parser.add_argument('-p', '--plain', help='plain text n-best file', type=str, default='data/test/nbest_plain')
-    parser.add_argument('--am', dest='am', action='store_true')
-    parser.add_argument('--no-am', dest='am', action='store_false')
+    parser.add_argument('--am', dest='include_am', action='store_true')
+    parser.add_argument('--no-am', dest='include_am', action='store_false')
     parser.set_defaults(am=False)
     args = parser.parse_args()
-    if args.am:
+    if args.include_am:
         linspace = np.arange(0, 1, 0.05)
         wer = [calculate_wer(args, alpha) for alpha in linspace]
         log(wer, linspace)
